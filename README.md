@@ -1,5 +1,5 @@
 In backend
-uvicorn main:app --reload
+uvicorn backend.main:app --reload
 
 
 In frontend
