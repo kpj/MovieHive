@@ -1,6 +1,9 @@
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from './UserContext.js';
 
+import commonStyles from "./CommonStyles.module.css";
+import styles from "./VotingView.module.css";
+
 
 function SingleSubmission({ data, setGameState }) {
   const user = useContext(UserContext);
@@ -30,12 +33,12 @@ function SingleSubmission({ data, setGameState }) {
   }
 
   return (
-    <>
-      Movie: {data.name},
-      Submitted by: {data.submitting_user.name}<br />
-      <button onClick={addVote}>Add Vote</button>
-      <br /><br />
-    </>
+    <div className={styles.componentItem}>
+      <h3 className={styles.componentTitle}>Movie: {data.name}</h3>
+      <p className={styles.componentDescription}>Submitted by: {data.submitting_user.name}</p>
+
+      <button onClick={addVote} className={commonStyles.button}>Add Vote</button>
+    </div>
   );
 }
 
@@ -58,6 +61,9 @@ export default function VotingView({ setGameState }) {
   }, []);
 
   return (<>
-    {submissions.map((sub, i) => <SingleSubmission key={i} data={sub} setGameState={setGameState} />)}
+    <p className={commonStyles.description}>Vote for the movie which you think fits the prompt best (you cannot vote for your own movie).</p>
+    <div className={commonStyles.componentList}>
+      {submissions.map((sub, i) => <SingleSubmission key={i} data={sub} setGameState={setGameState} />)}
+    </div>
   </>);
 }

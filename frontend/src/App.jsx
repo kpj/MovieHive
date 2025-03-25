@@ -1,5 +1,7 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { UserContext } from "./UserContext.js";
+
+import Container from "./Container.jsx";
 import SubmissionView from "./SubmissionView.jsx";
 import VotingView from "./VotingView.jsx";
 import ResultView from "./ResultView.jsx";
@@ -57,5 +59,5 @@ export default function App() {
   } else if (gameState == "ResultState") {
     container = (<ResultView setGameState={setGameState} />);
   }
-  return <UserContext.Provider value={user}>{container}</UserContext.Provider>
+  return <UserContext.Provider value={user} ><Container>{container}</Container></UserContext.Provider >
 }

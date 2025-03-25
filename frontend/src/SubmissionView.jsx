@@ -1,6 +1,8 @@
 import { useRef, useState, useEffect, useContext } from 'react';
 import { UserContext } from './UserContext.js';
 
+import commonStyles from "./CommonStyles.module.css";
+
 
 export default function SubmissionView({ setGameState }) {
   const [prompt, setPrompt] = useState([])
@@ -47,13 +49,15 @@ export default function SubmissionView({ setGameState }) {
 
   return (
     <>
-      <h1>{prompt}</h1>
+      <p className={commonStyles.description}>Submit the title of the movie which you think fits the prompt best.</p>
       <input
         type="text"
         placeholder="Movie"
         ref={(el) => (inputRefs.current.movie = el)}
+        className={commonStyles.input}
+        required
       />
-      <button onClick={sendSubmission}>Submit</button>
+      <button onClick={sendSubmission} className={commonStyles.button}>Submit</button>
     </>
   );
 }
