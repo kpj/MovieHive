@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useContext } from "react";
 import { UserContext } from "./UserContext.js";
 
+import LoginScreen from "./LoginScreen.jsx";
 import Container from "./Container.jsx";
 import SubmissionView from "./SubmissionView.jsx";
 import VotingView from "./VotingView.jsx";
@@ -8,25 +9,27 @@ import ResultView from "./ResultView.jsx";
 
 
 export default function App() {
-  const [gameState, setGameState] = useState([]);
-  const [user, setUser] = useState([]);
+  const [gameState, setGameState] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
 
-  const hasPrompted = useRef(false); // Fix for double prompt on startup in react dev mode (components are rendered twice to detect side-effects)
-
-  const setupGame = async (username) => {
+  const setupGame = async (userInfo) => {
     await fetch(`http://localhost:8000/users/`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${userInfo.token.access_token}`,
       },
       body: JSON.stringify({
-        name: username,
+        name: userInfo.username,
       })
     })
 
     try {
       const response = await fetch("http://localhost:8000/state/", {
         method: "GET",
+        headers: {
+          "Authorization": `Bearer ${userInfo.token}`,
+        },
       })
       const result = await response.json();
       setGameState(result.state)
@@ -35,16 +38,14 @@ export default function App() {
     }
   }
 
-  // Call this once after page has loaded
-  useEffect(() => {
-    let username = null;
-    if (!hasPrompted.current) {
-      username = prompt("Enter your username");
-      setUser(username);
-      hasPrompted.current = true;
-      setupGame(username)
-    }
-  }, []);
+  const onLogin = async (userInfo) => {
+    setUserInfo(userInfo);
+    setupGame(userInfo);
+  }
+
+  if (userInfo === null) {
+    return <LoginScreen onLogin={onLogin} />
+  }
 
   let container = (
     <h1>
@@ -53,11 +54,11 @@ export default function App() {
   );
 
   if (gameState == "SubmissionState") {
-    container = (<SubmissionView setGameState={setGameState} />);
+    container = <SubmissionView setGameState={setGameState} />;
   } else if (gameState == "VotingState") {
-    container = (<VotingView setGameState={setGameState} />);
+    container = <VotingView setGameState={setGameState} />;
   } else if (gameState == "ResultState") {
-    container = (<ResultView setGameState={setGameState} />);
+    container = <ResultView setGameState={setGameState} />;
   }
-  return <UserContext.Provider value={user} ><Container>{container}</Container></UserContext.Provider >
+  return <UserContext.Provider value={userInfo} ><Container>{container}</Container></UserContext.Provider >
 }

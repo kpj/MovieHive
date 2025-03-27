@@ -6,20 +6,20 @@ import styles from "./VotingView.module.css";
 
 
 function SingleSubmission({ data, setGameState }) {
-  const user = useContext(UserContext);
+  const userInfo = useContext(UserContext);
 
   const addVote = () => {
-    console.log(user)
     const foo = async () => {
       try {
         const response = await fetch(`http://localhost:8000/vote/`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${userInfo.token.access_token}`,
           },
           body: JSON.stringify({
             movie_id: data.id,
-            voting_user_id: user,
+            voting_user_id: userInfo.username,
           })
         })
         const result = await response.json();
@@ -43,6 +43,7 @@ function SingleSubmission({ data, setGameState }) {
 }
 
 export default function VotingView({ setGameState }) {
+  const userInfo = useContext(UserContext);
   const [submissions, setSubmissions] = useState([]);
 
   useEffect(() => {
@@ -50,6 +51,9 @@ export default function VotingView({ setGameState }) {
       try {
         const response = await fetch("http://localhost:8000/round/", {
           method: "GET",
+          headers: {
+            "Authorization": `Bearer ${userInfo.token.access_token}`,
+          },
         })
         const result = await response.json();
         setSubmissions(result.movies)

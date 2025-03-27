@@ -6,7 +6,7 @@ import styles from "./Container.module.css";
 
 export default function Container({ children }) {
   const [prompt, setPrompt] = useState([])
-  const user = useContext(UserContext);
+  const userInfo = useContext(UserContext);
 
   useEffect(() => {
     const loadState = async () => {
@@ -24,9 +24,8 @@ export default function Container({ children }) {
   }, []);
 
   return (
-
     <div className={styles.container}>
-      <div className={styles.floatingBox}>Logged in user: {user}</div>
+      <div className={styles.floatingBox}>Logged in user: {userInfo.username}</div>
 
       <div className={styles.card}>
         <h2 className={styles.title}>Prompt: "{prompt}"</h2>

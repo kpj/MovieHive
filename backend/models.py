@@ -44,7 +44,7 @@ class MoviePublic(MovieBase):
 
 class MovieCreate(MovieBase):
     name: str
-    user: str
+    user: str | None = None
 
 
 class UserBase(SQLModel):

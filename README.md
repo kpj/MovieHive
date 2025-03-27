@@ -1,10 +1,17 @@
-In backend
-uvicorn backend.main:app --reload
+# README
 
+## Running the application
 
-In frontend
-npm run dev
+In backend:
+```bash
+$ USER_DATABASE="user:test user2:test2" JWT_SECRET_KEY="test_key" uvicorn backend.main:app --reload
+```
 
+In frontend:
+```bash
+$ npm run dev
+```
 
-Automatic API docs
-http://127.0.0.1:8000/docs
+## Misc
+
+* API docs: http://127.0.0.1:8000/docs

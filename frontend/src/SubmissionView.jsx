@@ -7,13 +7,16 @@ import commonStyles from "./CommonStyles.module.css";
 export default function SubmissionView({ setGameState }) {
   const [prompt, setPrompt] = useState([])
   const inputRefs = useRef({});
-  const user = useContext(UserContext);
+  const userInfo = useContext(UserContext);
 
   useEffect(() => {
     const loadState = async () => {
       try {
         const response = await fetch("http://localhost:8000/round/", {
           method: "GET",
+          headers: {
+            "Authorization": `Bearer ${userInfo.token.access_token}`,
+          },
         })
         const result = await response.json();
         setPrompt(result.prompt)
@@ -27,20 +30,18 @@ export default function SubmissionView({ setGameState }) {
   const sendSubmission = async () => {
     const data = {
       name: inputRefs.current.movie.value,
-      user: user,
     };
-    console.log(data)
 
     try {
       const response = await fetch("http://localhost:8000/movies/", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${userInfo.token.access_token}`,
         },
         body: JSON.stringify(data)
       });
       const result = await response.json();
-      console.log("State", result.state);
       setGameState(result.state);
     } catch (error) {
       console.error("Error sending submission:", error);

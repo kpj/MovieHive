@@ -6,7 +6,7 @@ import styles from "./ResultView.module.css";
 
 
 function SingleResult({ data, setGameState }) {
-  const user = useContext(UserContext);
+  const userInfo = useContext(UserContext);
 
   return (
     <div className={styles.componentItem}>
