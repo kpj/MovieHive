@@ -16,23 +16,23 @@ def get_state(request: Request) -> models.CurrentState:
 
 
 @router.get("/round")
-def get_round(*, request: Request) -> models.RoundPublicWithMovies:
+def get_round(*, request: Request) -> models.RoundPublicWithSubmissions:
     return request.app.state.game_manager.get_current_round()
 
 
-@router.post("/movies/")
-def add_movie(
+@router.post("/submissions/")
+def add_submission(
     *,
     request: Request,
     current_user: login_system.AuthenticatedUser,
-    movie: models.MovieCreate
+    submission: models.SubmissionCreate
 ) -> models.CurrentState:
     if not request.app.state.game_manager.is_in_state(game_manager.SubmissionState):
         raise HTTPException(status_code=500, detail="Not in submission state")
 
-    assert movie.user is None, movie
-    movie.user = current_user.username
-    request.app.state.game_manager.add_movie(movie)
+    assert submission.user is None, submission
+    submission.user = current_user.username
+    request.app.state.game_manager.add_submission(submission)
 
     request.app.state.game_manager.update()
     return models.CurrentState(
@@ -41,10 +41,16 @@ def add_movie(
 
 
 @router.post("/vote/")
-def add_vote(*, request: Request, vote: models.VoteCreate) -> models.CurrentState:
+def add_vote(
+    *,
+    request: Request,
+    current_user: login_system.AuthenticatedUser,
+    vote: models.VoteCreate
+) -> models.CurrentState:
     if not request.app.state.game_manager.is_in_state(game_manager.VotingState):
         raise HTTPException(status_code=500, detail="Not in voting state")
 
+    vote.voting_user_name = current_user.username
     request.app.state.game_manager.add_vote(vote)
 
     request.app.state.game_manager.update()

@@ -81,26 +81,26 @@ class GameManager:
         with self.sql_session() as session:
             return session.exec(select(models.Round)).first()
 
-    def add_movie(self, movie: models.Movie):
+    def add_submission(self, submission: models.Submission):
         with self.sql_session() as session:
-            db_movie = models.Movie(
+            db_submission = models.Submission(
                 round=session.exec(select(models.Round)).first(),
-                name=movie.name,
-                submitting_user=models.User(name=movie.user),
+                submitting_user=models.User(name=submission.user),
+                movie=models.Movie(name=submission.name),
             )
-            session.add(db_movie)
+            session.add(db_submission)
             session.commit()
+            session.refresh(db_submission)
 
     def add_vote(self, vote: models.VoteCreate):
         with self.sql_session() as session:
-            # user = session.get(User, vote.voting_user_id)
             user = session.exec(
-                select(models.User).where(models.User.name == vote.voting_user_id)
-            ).first()  # TODO: actually use user id instead of name
+                select(models.User).where(models.User.name == vote.voting_user_name)
+            ).first()
             if not user:
                 raise HTTPException(status_code=404, detail="User not found")
 
-            user.voted_movie_id = vote.movie_id
+            user.voted_submission_id = vote.submission_id
 
             session.add(user)
             session.commit()
@@ -109,18 +109,19 @@ class GameManager:
     def all_players_submitted(self) -> bool:
         with self.sql_session() as session:
             users = set(
-                sub.submitting_user.name for sub in session.exec(select(models.Movie))
+                sub.submitting_user.name
+                for sub in session.exec(select(models.Submission))
             )
 
         return set(self._players) <= users
 
     def all_players_voted(self) -> bool:
         with self.sql_session() as session:
-            voted_movie_ids = [
-                user.voted_movie_id for user in session.exec(select(models.User))
+            voted_submission_ids = [
+                user.voted_submission_id for user in session.exec(select(models.User))
             ]
 
-        return None not in voted_movie_ids
+        return None not in voted_submission_ids
 
     def transition_to_state(self, new_state: GameState):
         print(f"Transitioning to {new_state}")

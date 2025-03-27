@@ -33,7 +33,7 @@ export default function SubmissionView({ setGameState }) {
     };
 
     try {
-      const response = await fetch("http://localhost:8000/movies/", {
+      const response = await fetch("http://localhost:8000/submissions/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

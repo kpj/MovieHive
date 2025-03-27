@@ -18,12 +18,10 @@ function SingleSubmission({ data, setGameState }) {
             "Authorization": `Bearer ${userInfo.token.access_token}`,
           },
           body: JSON.stringify({
-            movie_id: data.id,
-            voting_user_id: userInfo.username,
+            submission_id: data.id,
           })
         })
         const result = await response.json();
-        console.log("State", result.state);
         setGameState(result.state);
       } catch (error) {
         console.error("Error:", error);
@@ -34,7 +32,7 @@ function SingleSubmission({ data, setGameState }) {
 
   return (
     <div className={styles.componentItem}>
-      <h3 className={styles.componentTitle}>Movie: {data.name}</h3>
+      <h3 className={styles.componentTitle}>Movie: {data.movie.name}</h3>
       <p className={styles.componentDescription}>Submitted by: {data.submitting_user.name}</p>
 
       <button onClick={addVote} className={commonStyles.button}>Add Vote</button>
@@ -56,7 +54,7 @@ export default function VotingView({ setGameState }) {
           },
         })
         const result = await response.json();
-        setSubmissions(result.movies)
+        setSubmissions(result.submissions)
       } catch (error) {
         console.error("Error submissions:", error);
       }

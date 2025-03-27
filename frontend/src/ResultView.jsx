@@ -10,7 +10,7 @@ function SingleResult({ data, setGameState }) {
 
   return (
     <div className={styles.componentItem}>
-      <h3 className={styles.componentTitle}>Movie: {data.name}</h3>
+      <h3 className={styles.componentTitle}>Movie: {data.movie.name}</h3>
       <p className={styles.componentDescription}>Submitted by: {data.submitting_user.name}</p>
 
       <div className={styles.scoreContainer}>
@@ -27,7 +27,7 @@ function SingleResult({ data, setGameState }) {
 }
 
 export default function ResultView({ setGameState }) {
-  const [results, setResults] = useState({ movies: [] });
+  const [results, setResults] = useState({ submissions: [] });
 
   useEffect(() => {
     const loadState = async () => {
@@ -47,7 +47,7 @@ export default function ResultView({ setGameState }) {
   return (<>
     <p className={commonStyles.description}>The results are in.</p>
     <div className={commonStyles.componentList}>
-      {results.movies.slice().sort((a, b) => b.voting_users.length - a.voting_users.length).map((data, i) => <SingleResult key={i} data={data} setGameState={setGameState} />)}
+      {results.submissions.slice().sort((a, b) => b.voting_users.length - a.voting_users.length).map((data, i) => <SingleResult key={i} data={data} setGameState={setGameState} />)}
     </div>
   </>);
 }
