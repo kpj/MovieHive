@@ -63,7 +63,6 @@ class SubmissionState(GameState):
 class GameManager:
     def __init__(self, initial_state: GameState | None = None):
         self._state = (initial_state or SubmissionState)(self)
-        self._players = []
 
         self.engine = None
 
@@ -75,7 +74,16 @@ class GameManager:
 
     def add_player(self, user: models.UserCreate):
         if user.name not in self._players:
-            self._players.append(user.name)
+            with self.sql_session() as session:
+                db_user = models.User.model_validate(user)
+                session.add(db_user)
+                session.commit()
+                session.refresh(db_user)
+
+    @property
+    def _players(self):
+        with self.sql_session() as session:
+            return [user.name for user in session.exec(select(models.User))]
 
     def get_current_round(self) -> models.Round:
         with self.sql_session() as session:
