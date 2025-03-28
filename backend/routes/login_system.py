@@ -124,17 +124,3 @@ async def login_for_access_token(
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     )
     return Token(access_token=access_token, token_type="bearer")
-
-
-@router.get("/users/me/", response_model=User)
-async def read_users_me(
-    current_user: AuthenticatedUser,
-):
-    return current_user
-
-
-@router.get("/users/me/items/")
-async def read_own_items(
-    current_user: AuthenticatedUser,
-):
-    return [{"item_id": "Foo", "owner": current_user.username}]
