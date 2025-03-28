@@ -2,7 +2,7 @@ import abc
 import contextlib
 from typing import Generator
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlmodel import Session, SQLModel, create_engine, select
 
 from backend import models
@@ -97,7 +97,10 @@ class GameManager:
             ).first()
 
             if not round:
-                raise HTTPException("No rounds exist in the database.")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail="No rounds exist in the database.",
+                )
 
             # Get submitting user.
             user = session.exec(
@@ -105,7 +108,10 @@ class GameManager:
             ).first()
 
             if not user:
-                raise HTTPException(f"User '{username}' not found.")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"User '{username}' not found.",
+                )
 
             # Get or create movie.
             movie = session.exec(
@@ -138,7 +144,10 @@ class GameManager:
             ).first()
 
             if not user:
-                raise HTTPException(f"User '{username}' not found.")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"User '{username}' not found.",
+                )
 
             # Assign vote.
             user.voted_submission_id = vote.submission_id
