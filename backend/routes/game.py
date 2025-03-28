@@ -30,9 +30,7 @@ def add_submission(
     if not request.app.state.game_manager.is_in_state(game_manager.SubmissionState):
         raise HTTPException(status_code=500, detail="Not in submission state")
 
-    assert submission.user is None, submission
-    submission.user = current_user.username
-    request.app.state.game_manager.add_submission(submission)
+    request.app.state.game_manager.add_submission(current_user.username, submission)
 
     request.app.state.game_manager.update()
     return models.CurrentState(
@@ -50,8 +48,7 @@ def add_vote(
     if not request.app.state.game_manager.is_in_state(game_manager.VotingState):
         raise HTTPException(status_code=500, detail="Not in voting state")
 
-    vote.voting_user_name = current_user.username
-    request.app.state.game_manager.add_vote(vote)
+    request.app.state.game_manager.add_vote(current_user.username, vote)
 
     request.app.state.game_manager.update()
     return models.CurrentState(

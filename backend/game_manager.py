@@ -89,27 +89,61 @@ class GameManager:
         with self.sql_session() as session:
             return session.exec(select(models.Round)).first()
 
-    def add_submission(self, submission: models.Submission):
+    def add_submission(self, username: str, submission: models.SubmissionCreate):
         with self.sql_session() as session:
-            db_submission = models.Submission(
-                round=session.exec(select(models.Round)).first(),
-                submitting_user=models.User(name=submission.user),
-                movie=models.Movie(name=submission.name),
-            )
-            session.add(db_submission)
-            session.commit()
-            session.refresh(db_submission)
-
-    def add_vote(self, vote: models.VoteCreate):
-        with self.sql_session() as session:
-            user = session.exec(
-                select(models.User).where(models.User.name == vote.voting_user_name)
+            # Get current round.
+            round = session.exec(
+                select(models.Round).order_by(models.Round.id.desc()).limit(1)
             ).first()
-            if not user:
-                raise HTTPException(status_code=404, detail="User not found")
 
+            if not round:
+                raise HTTPException("No rounds exist in the database.")
+
+            # Get submitting user.
+            user = session.exec(
+                select(models.User).where(models.User.name == username)
+            ).first()
+
+            if not user:
+                raise HTTPException(f"User '{username}' not found.")
+
+            # Get or create movie.
+            movie = session.exec(
+                select(models.Movie).where(models.Movie.name == submission.name)
+            ).first()
+
+            if not movie:
+                movie = models.Movie(name=submission.name)
+                session.add(movie)
+                session.commit()
+                session.refresh(movie)
+
+            # Create the new submission
+            new_submission = models.Submission(
+                round_id=round.id,
+                movie_id=movie.id,
+                submitting_user_id=user.id,
+            )
+
+            # Update database.
+            session.add(new_submission)
+            session.commit()
+            session.refresh(new_submission)
+
+    def add_vote(self, username: str, vote: models.VoteCreate):
+        with self.sql_session() as session:
+            # Get voting user.
+            user = session.exec(
+                select(models.User).where(models.User.name == username)
+            ).first()
+
+            if not user:
+                raise HTTPException(f"User '{username}' not found.")
+
+            # Assign vote.
             user.voted_submission_id = vote.submission_id
 
+            # Update database.
             session.add(user)
             session.commit()
             session.refresh(user)
