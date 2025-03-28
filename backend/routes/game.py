@@ -1,6 +1,5 @@
 from fastapi import Request, APIRouter, HTTPException
 
-
 from backend import models, game_manager
 from backend.routes import login_system
 
@@ -65,3 +64,13 @@ def add_user(
 ):
     assert user.name == current_user.username, (user, current_user)
     request.app.state.game_manager.add_player(user)
+
+
+@router.post("/comments/")
+def add_comment(
+    *,
+    request: Request,
+    current_user: login_system.AuthenticatedUser,
+    comment: models.CommentCreate
+):
+    request.app.state.game_manager.add_comment(current_user.username, comment)

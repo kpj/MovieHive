@@ -46,3 +46,14 @@
   font-size: 14px;
   color: #555;
 }
+
+.entry {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.commentsEntry {
+  font-size: 14px;
+  color: #555;
+}

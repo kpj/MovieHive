@@ -30,6 +30,7 @@ export default function SubmissionView({ setGameState }) {
   const sendSubmission = async () => {
     const data = {
       name: inputRefs.current.movie.value,
+      comment: inputRefs.current.comment.value,
     };
 
     try {
@@ -57,6 +58,12 @@ export default function SubmissionView({ setGameState }) {
         ref={(el) => (inputRefs.current.movie = el)}
         className={commonStyles.input}
         required
+      />
+      <input
+        type="text"
+        placeholder="Comment"
+        ref={(el) => (inputRefs.current.comment = el)}
+        className={commonStyles.input}
       />
       <button onClick={sendSubmission} className={commonStyles.button}>Submit</button>
     </>

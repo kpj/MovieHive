@@ -22,6 +22,11 @@ function SingleResult({ data, setGameState }) {
         <span className={styles.sectionTitle}>Voted for by:</span>
         <span className={styles.players}>{data.voting_users.map(data => data.name).join(", ")}</span>
       </div>
+
+      <div className={styles.entry}>
+        <span className={styles.sectionTitle}>Comments:</span>
+        <span className={styles.commentsEntry}>{data.comments.map(data => `${data.author.name}: ${data.text}`).join(", ")}</span>
+      </div>
     </div>
   );
 }

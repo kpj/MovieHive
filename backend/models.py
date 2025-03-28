@@ -49,6 +49,7 @@ class Submission(SubmissionBase, table=True):
         sa_relationship_kwargs={"foreign_keys": "User.voted_submission_id"},
     )
     movie: Movie = Relationship(back_populates="submissions")
+    comments: list["Comment"] = Relationship(back_populates="submission")
 
 
 class SubmissionPublic(SubmissionBase):
@@ -56,10 +57,32 @@ class SubmissionPublic(SubmissionBase):
     submitting_user: "UserPublic"
     voting_users: list["UserPublic"]
     movie: MoviePublic
+    comments: list["CommentPublic"]
 
 
 class SubmissionCreate(SubmissionBase):
     name: str
+    comment: str | None = None
+
+
+class CommentBase(SQLModel):
+    submission_id: int | None = Field(default=None, foreign_key="submission.id")
+    author_id: int | None = Field(default=None, foreign_key="user.id")
+    text: str
+
+
+class Comment(CommentBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    submission: Submission = Relationship(back_populates="comments")
+    author: "User" = Relationship(back_populates="comments")
+
+
+class CommentPublic(CommentBase):
+    author: "UserPublic"
+
+
+class CommentCreate(CommentBase):
+    pass
 
 
 class UserBase(SQLModel):
@@ -77,6 +100,7 @@ class User(UserBase, table=True):
         back_populates="voting_users",
         sa_relationship_kwargs={"foreign_keys": "User.voted_submission_id"},
     )
+    comments: list["Comment"] = Relationship(back_populates="author")
 
 
 class UserPublic(UserBase):

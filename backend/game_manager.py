@@ -136,6 +136,16 @@ class GameManager:
             session.commit()
             session.refresh(new_submission)
 
+            # Add comment if given.
+            if submission.comment is not None:
+                comment = models.Comment(
+                    submission_id=new_submission.id,
+                    author_id=user.id,
+                    text=submission.comment,
+                )
+                session.add(comment)
+                session.commit()
+
     def add_vote(self, username: str, vote: models.VoteCreate):
         with self.sql_session() as session:
             # Get voting user.
@@ -156,6 +166,26 @@ class GameManager:
             session.add(user)
             session.commit()
             session.refresh(user)
+
+    def add_comment(self, username: str, comment: models.CommentCreate):
+        with self.sql_session() as session:
+            # Get commenting user.
+            user = session.exec(
+                select(models.User).where(models.User.name == username)
+            ).first()
+
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=f"User '{username}' not found.",
+                )
+
+            comment.author_id = user.id
+
+            db_comment = models.Comment.model_validate(comment)
+            session.add(db_comment)
+            session.commit()
+            session.refresh(db_comment)
 
     def all_players_submitted(self) -> bool:
         with self.sql_session() as session:
