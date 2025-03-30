@@ -162,6 +162,17 @@ class GameManager:
             # Assign vote.
             user.voted_submission_id = vote.submission_id
 
+            # Assign comments.
+            for submission_id, comment_text in vote.all_comments.items():
+                comment = models.Comment(
+                    submission_id=submission_id,
+                    author_id=user.id,
+                    text=comment_text,
+                )
+                session.add(comment)
+                session.commit()
+                session.refresh(comment)
+
             # Update database.
             session.add(user)
             session.commit()

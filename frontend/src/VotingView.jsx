@@ -1,15 +1,23 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { UserContext } from './UserContext.js';
 
 import commonStyles from "./CommonStyles.module.css";
 import styles from "./VotingView.module.css";
 
 
-function SingleSubmission({ data, setGameState }) {
+function SingleSubmission({ data, setGameState, inputRefs }) {
   const userInfo = useContext(UserContext);
 
   const addVote = () => {
     const foo = async () => {
+      let commentData = {};
+      for (let key of Object.keys(inputRefs.current.comments)) {
+        const value = inputRefs.current.comments[key];
+        if (value.length > 0) {
+          commentData[key] = value;
+        }
+      }
+
       try {
         const response = await fetch(`http://localhost:8000/vote/`, {
           method: "POST",
@@ -19,6 +27,7 @@ function SingleSubmission({ data, setGameState }) {
           },
           body: JSON.stringify({
             submission_id: data.id,
+            all_comments: commentData,
           })
         })
         const result = await response.json();
@@ -35,14 +44,22 @@ function SingleSubmission({ data, setGameState }) {
       <h3 className={styles.componentTitle}>Movie: {data.movie.name}</h3>
       <p className={styles.componentDescription}>Submitted by: {data.submitting_user.name}</p>
 
+      <input
+        type="text"
+        placeholder="Comment"
+        onChange={(e) => { inputRefs.current.comments[data.id] = e.target.value }}
+        className={commonStyles.input}
+      />
+
       <button onClick={addVote} className={commonStyles.button}>Add Vote</button>
-    </div>
+    </div >
   );
 }
 
 export default function VotingView({ setGameState }) {
   const userInfo = useContext(UserContext);
   const [submissions, setSubmissions] = useState([]);
+  const inputRefs = useRef({ comments: {} });
 
   useEffect(() => {
     const loadState = async () => {
@@ -65,7 +82,7 @@ export default function VotingView({ setGameState }) {
   return (<>
     <p className={commonStyles.description}>Vote for the movie which you think fits the prompt best (you cannot vote for your own movie).</p>
     <div className={commonStyles.componentList}>
-      {submissions.map((sub, i) => <SingleSubmission key={i} data={sub} setGameState={setGameState} />)}
+      {submissions.map((sub, i) => <SingleSubmission key={i} data={sub} setGameState={setGameState} inputRefs={inputRefs} />)}
     </div>
   </>);
 }

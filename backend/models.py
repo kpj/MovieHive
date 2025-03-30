@@ -1,3 +1,5 @@
+from collections.abc import Mapping
+
 from sqlmodel import Field, SQLModel, Relationship
 
 
@@ -113,6 +115,7 @@ class UserCreate(UserBase):
 
 class VoteCreate(SQLModel):
     submission_id: int
+    all_comments: Mapping[int, str]
 
 
 class CurrentState(SQLModel):
