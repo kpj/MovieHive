@@ -1,30 +1,10 @@
-.componentItem {
-  background: #f9f9f9;
-  border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.componentTitle {
-  font-size: 20px;
-  font-weight: bold;
-  margin-bottom: 8px;
-}
-
-.componentDescription {
-  font-size: 14px;
-  color: #666;
-}
-
-.scoreContainer {
+.entry {
+  margin-top: 10px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
+  flex-direction: column;
 }
 
-.sectionTitle {
+.entryTitle {
   font-size: 16px;
   font-weight: bold;
   color: #555;
@@ -36,21 +16,9 @@
   color: #2ecc71;
 }
 
-.playersContainer {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-}
-
 .players {
   font-size: 14px;
   color: #555;
-}
-
-.entry {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
 }
 
 .commentsEntry {

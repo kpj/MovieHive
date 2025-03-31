@@ -9,22 +9,22 @@ function SingleResult({ data, setGameState }) {
   const userInfo = useContext(UserContext);
 
   return (
-    <div className={styles.componentItem}>
-      <h3 className={styles.componentTitle}>Movie: {data.movie.name}</h3>
-      <p className={styles.componentDescription}>Submitted by: {data.submitting_user.name}</p>
+    <div className={commonStyles.submissionItem}>
+      <h3 className={commonStyles.submissionTitle}>Movie: {data.movie.name}</h3>
+      <p className={commonStyles.submissionDescription}>Submitted by: {data.submitting_user.name}</p>
 
-      <div className={styles.scoreContainer}>
-        <span className={styles.sectionTitle}>Score:</span>
+      <div className={styles.entry}>
+        <span className={styles.entryTitle}>Score:</span>
         <span className={styles.score}>{data.voting_users.length}</span>
       </div>
 
-      <div className={styles.playersContainer}>
-        <span className={styles.sectionTitle}>Voted for by:</span>
+      <div className={styles.entry}>
+        <span className={styles.entryTitle}>Voted for by:</span>
         <span className={styles.players}>{data.voting_users.map(data => data.name).join(", ")}</span>
       </div>
 
       <div className={styles.entry}>
-        <span className={styles.sectionTitle}>Comments:</span>
+        <span className={styles.entryTitle}>Comments:</span>
         <span className={styles.commentsEntry}>{data.comments.map(data => `${data.author.name}: ${data.text}`).join(", ")}</span>
       </div>
     </div>
@@ -51,7 +51,7 @@ export default function ResultView({ setGameState }) {
 
   return (<>
     <p className={commonStyles.description}>The results are in.</p>
-    <div className={commonStyles.componentList}>
+    <div className={commonStyles.submissionList}>
       {results.submissions.slice().sort((a, b) => b.voting_users.length - a.voting_users.length).map((data, i) => <SingleResult key={i} data={data} setGameState={setGameState} />)}
     </div>
   </>);

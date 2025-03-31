@@ -17,6 +17,7 @@
   border-radius: 8px;
   font-size: 16px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .button {
@@ -34,7 +35,26 @@
   background: #0056b3;
 }
 
-.componentList {
+.submissionList {
   width: 100%;
   margin-top: 20px;
+}
+
+.submissionItem {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.submissionTitle {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.submissionDescription {
+  font-size: 14px;
+  color: #666;
 }

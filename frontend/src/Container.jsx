@@ -28,7 +28,7 @@ export default function Container({ children }) {
       <div className={styles.floatingBox}>Logged in user: {userInfo.username}</div>
 
       <div className={styles.card}>
-        <h2 className={styles.title}>Prompt: "{prompt}"</h2>
+        <h2 className={styles.title}><span className={styles.promptPrefix}>Prompt:</span> "{prompt}"</h2>
 
         <hr className={styles.divider} />
 
