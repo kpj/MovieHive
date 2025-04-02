@@ -5,7 +5,9 @@ from typing import Generator
 from fastapi import HTTPException, status
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from backend import models
+from imdbmovies import IMDB
+
+from . import models
 
 
 class GameState(abc.ABC):
@@ -119,7 +121,7 @@ class GameManager:
             ).first()
 
             if not movie:
-                movie = models.Movie(name=submission.name)
+                movie = self.load_movie_object(submission.name)
                 session.add(movie)
                 session.commit()
                 session.refresh(movie)
@@ -244,3 +246,37 @@ class GameManager:
     @contextlib.contextmanager
     def sql_session(self) -> Generator[Session, None, None]:
         yield Session(self.engine)
+
+    def load_movie_object(self, name: str) -> models.Movie:
+        imdb = IMDB()
+
+        movie_data = imdb.get_by_name(name)
+
+        actor_data_subset = []
+        for actor in movie_data["actor"]:
+            _, actor_id, _ = actor["url"].rsplit("/", 2)
+            actor_data = imdb.person_by_id(actor_id)
+            actor_data_subset.append(f"{actor_data['name']},{actor_data.get('image')}")
+
+        used_directors = []  # Directors and creators can be redundant.
+        director_data_subset = []
+        for director in movie_data["director"] + movie_data["creator"]:
+            _, director_id, _ = director["url"].rsplit("/", 2)
+            if director_id in used_directors:
+                continue
+            director_data = imdb.person_by_id(director_id)
+            director_data_subset.append(
+                f"{director_data['name']},{director_data.get('image')}"
+            )
+            used_directors.append(director_id)
+
+        return models.Movie(
+            name=movie_data["name"],
+            requested_name=name,
+            poster_url=movie_data["poster"],
+            description=movie_data["description"],
+            genre=";".join(movie_data["genre"]),
+            release_date=movie_data["datePublished"],
+            actors=";".join(actor_data_subset),
+            directors=";".join(director_data_subset),
+        )

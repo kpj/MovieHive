@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext, useRef } from "react";
 import { UserContext } from './UserContext.js';
 
+import MovieCard from "./MovieCard.jsx";
+
 import commonStyles from "./CommonStyles.module.css";
 
 
@@ -40,7 +42,7 @@ function SingleSubmission({ data, setGameState, inputRefs }) {
 
   return (
     <div className={commonStyles.submissionItem}>
-      <h3 className={commonStyles.submission}>Movie: {data.movie.name}</h3>
+      <MovieCard movieData={data.movie} />
       <p className={commonStyles.submission}>Submitted by: {data.submitting_user.name}</p>
 
       <input
@@ -79,7 +81,7 @@ export default function VotingView({ setGameState }) {
   }, []);
 
   return (<>
-    <p className={commonStyles.description}>Vote for the movie which you think fits the prompt best (you cannot vote for your own movie).</p>
+    <p className={commonStyles.description}>Write comments wherever you feel like it and then vote for the movie which you think fits the prompt best (you cannot vote for your own movie).</p>
     <div className={commonStyles.submissionList}>
       {submissions.map((sub, i) => <SingleSubmission key={i} data={sub} setGameState={setGameState} inputRefs={inputRefs} />)}
     </div>

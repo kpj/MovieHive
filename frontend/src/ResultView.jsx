@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext } from "react";
 import { UserContext } from './UserContext.js';
 
+import MovieCard from "./MovieCard.jsx";
+
 import commonStyles from "./CommonStyles.module.css";
 import styles from "./ResultView.module.css";
 
@@ -10,7 +12,7 @@ function SingleResult({ data, setGameState }) {
 
   return (
     <div className={commonStyles.submissionItem}>
-      <h3 className={commonStyles.submissionTitle}>Movie: {data.movie.name}</h3>
+      <MovieCard movieData={data.movie} />
       <p className={commonStyles.submissionDescription}>Submitted by: {data.submitting_user.name}</p>
 
       <div className={styles.entry}>

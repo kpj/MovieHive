@@ -1,0 +1,34 @@
+.movieCard {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  align-content: stretch;
+}
+
+.moviePoster {
+  width: 30%;
+}
+
+.movieInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.actorsList {
+  display: flex;
+}
+
+.personCard {
+  display: flex;
+  flex: 1 1 0px;
+  align-items: center;
+  justify-content: center;
+}
+
+.personPicture {
+  width: 2em;
+  height: 2em;
+  object-fit: cover;
+  border-radius: 50%;
+}

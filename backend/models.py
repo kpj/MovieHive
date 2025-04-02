@@ -22,6 +22,13 @@ class RoundPublicWithSubmissions(RoundPublic):
 
 class MovieBase(SQLModel):
     name: str
+    requested_name: str
+    poster_url: str
+    description: str
+    genre: str
+    release_date: str
+    actors: str
+    directors: str
 
 
 class Movie(MovieBase, table=True):
