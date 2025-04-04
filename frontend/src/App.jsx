@@ -5,7 +5,7 @@ import LoginScreen from "./LoginScreen.jsx";
 import Container from "./Container.jsx";
 import SubmissionView from "./SubmissionView.jsx";
 import VotingView from "./VotingView.jsx";
-import ResultView from "./ResultView.jsx";
+import OverView from "./OverView.jsx";
 
 
 export default function App() {
@@ -54,11 +54,11 @@ export default function App() {
   );
 
   if (gameState == "SubmissionState") {
-    container = <SubmissionView setGameState={setGameState} />;
+    container = <Container><SubmissionView setGameState={setGameState} /></Container>;
   } else if (gameState == "VotingState") {
-    container = <VotingView setGameState={setGameState} />;
-  } else if (gameState == "ResultState") {
-    container = <ResultView setGameState={setGameState} />;
+    container = <Container><VotingView setGameState={setGameState} /></Container>;
+  } else if (gameState == "OverviewState") {
+    container = <OverView setGameState={setGameState} />;
   }
-  return <UserContext.Provider value={userInfo} ><Container>{container}</Container></UserContext.Provider >
+  return <UserContext.Provider value={userInfo} >{container}</UserContext.Provider >
 }

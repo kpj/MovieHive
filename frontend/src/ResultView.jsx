@@ -4,6 +4,7 @@ import { UserContext } from './UserContext.js';
 import MovieCard from "./MovieCard.jsx";
 
 import commonStyles from "./CommonStyles.module.css";
+import containerStyles from "./Container.module.css";
 import styles from "./ResultView.module.css";
 
 
@@ -33,28 +34,12 @@ function SingleResult({ data, setGameState }) {
   );
 }
 
-export default function ResultView({ setGameState }) {
-  const [results, setResults] = useState({ submissions: [] });
-
-  useEffect(() => {
-    const loadState = async () => {
-      try {
-        const response = await fetch("http://localhost:8000/round/", {
-          method: "GET",
-        })
-        const result = await response.json();
-        setResults(result);
-      } catch (error) {
-        console.error("Error submissions:", error);
-      }
-    }
-    loadState()
-  }, []);
-
+export default function ResultView({ singleRoundData, setGameState }) {
   return (<>
-    <p className={commonStyles.description}>The results are in.</p>
+    <h2 className={containerStyles.title}><span className={containerStyles.promptPrefix}>Prompt:</span> "{singleRoundData.prompt}"</h2>
+    <p className={commonStyles.description}>The final ranking is in.</p>
     <div className={commonStyles.submissionList}>
-      {results.submissions.slice().sort((a, b) => b.voting_users.length - a.voting_users.length).map((data, i) => <SingleResult key={i} data={data} setGameState={setGameState} />)}
+      {singleRoundData.submissions.slice().sort((a, b) => b.voting_users.length - a.voting_users.length).map((data, i) => <SingleResult key={i} data={data} setGameState={setGameState} />)}
     </div>
   </>);
 }

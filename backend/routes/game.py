@@ -19,6 +19,20 @@ def get_round(*, request: Request) -> models.RoundPublicWithSubmissions:
     return request.app.state.game_manager.get_current_round()
 
 
+@router.post("/round")
+def create_round(*, request: Request, round: models.RoundCreate) -> models.CurrentState:
+    request.app.state.game_manager.create_new_round(round)
+
+    return models.CurrentState(
+        state=request.app.state.game_manager._state.__class__.__name__
+    )
+
+
+@router.get("/rounds")
+def get_rounds(*, request: Request) -> list[models.RoundPublicWithSubmissions]:
+    return request.app.state.game_manager.get_all_rounds()
+
+
 @router.post("/submissions/")
 def add_submission(
     *,

@@ -20,6 +20,10 @@ class RoundPublicWithSubmissions(RoundPublic):
     submissions: list["SubmissionPublic"] = []
 
 
+class RoundCreate(RoundBase):
+    pass
+
+
 class MovieBase(SQLModel):
     name: str
     requested_name: str

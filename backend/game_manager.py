@@ -27,7 +27,7 @@ class GameState(abc.ABC):
         pass
 
 
-class ResultState(GameState):
+class OverviewState(GameState):
     def enter(self):
         pass
 
@@ -47,7 +47,7 @@ class VotingState(GameState):
 
     def update(self):
         if self.manager.all_players_voted():
-            self.manager.transition_to_state(ResultState)
+            self.manager.transition_to_state(OverviewState)
 
 
 class SubmissionState(GameState):
@@ -64,7 +64,7 @@ class SubmissionState(GameState):
 
 class GameManager:
     def __init__(self, initial_state: GameState | None = None):
-        self._state = (initial_state or SubmissionState)(self)
+        self._state = (initial_state or OverviewState)(self)
 
         self.engine = None
 
@@ -87,16 +87,31 @@ class GameManager:
         with self.sql_session() as session:
             return [user.name for user in session.exec(select(models.User))]
 
+    def create_new_round(self, round: models.RoundCreate):
+        with self.sql_session() as session:
+            db_round = models.Round.model_validate(round)
+            session.add(db_round)
+            session.commit()
+            session.refresh(db_round)
+
+        self.transition_to_state(SubmissionState)
+
+    def get_all_rounds(self) -> list[models.Round]:
+        with self.sql_session() as session:
+            return session.exec(
+                select(models.Round).order_by(models.Round.id.desc())
+            ).all()
+
     def get_current_round(self) -> models.Round:
         with self.sql_session() as session:
-            return session.exec(select(models.Round)).first()
+            return session.exec(
+                select(models.Round).order_by(models.Round.id.desc()).limit(1)
+            ).first()
 
     def add_submission(self, username: str, submission: models.SubmissionCreate):
         with self.sql_session() as session:
             # Get current round.
-            round = session.exec(
-                select(models.Round).order_by(models.Round.id.desc()).limit(1)
-            ).first()
+            round = self.get_current_round()
 
             if not round:
                 raise HTTPException(
@@ -234,14 +249,6 @@ class GameManager:
         self.engine = create_engine(sqlite_url, connect_args=connect_args)
 
         SQLModel.metadata.create_all(self.engine)
-
-        with self.sql_session() as session:
-            round = models.Round(
-                prompt="Movies that had a big impact on you while growing up."
-            )
-
-            session.add(round)
-            session.commit()
 
     @contextlib.contextmanager
     def sql_session(self) -> Generator[Session, None, None]:
