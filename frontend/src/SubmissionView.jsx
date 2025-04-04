@@ -5,7 +5,8 @@ import commonStyles from "./CommonStyles.module.css";
 
 
 export default function SubmissionView({ setGameState }) {
-  const [prompt, setPrompt] = useState([])
+  const [prompt, setPrompt] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
   const inputRefs = useRef({});
   const userInfo = useContext(UserContext);
 
@@ -34,6 +35,7 @@ export default function SubmissionView({ setGameState }) {
     };
 
     try {
+      setIsLoading(true);
       const response = await fetch("http://localhost:8000/submissions/", {
         method: "POST",
         headers: {
@@ -46,6 +48,8 @@ export default function SubmissionView({ setGameState }) {
       setGameState(result.state);
     } catch (error) {
       console.error("Error sending submission:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -58,14 +62,16 @@ export default function SubmissionView({ setGameState }) {
         ref={(el) => (inputRefs.current.movie = el)}
         className={commonStyles.input}
         required
+        disabled={isLoading}
       />
       <input
         type="text"
         placeholder="Comment"
         ref={(el) => (inputRefs.current.comment = el)}
         className={commonStyles.input}
+        disabled={isLoading}
       />
-      <button onClick={sendSubmission} className={commonStyles.button}>Submit</button>
+      <button onClick={sendSubmission} className={commonStyles.button} disabled={isLoading}>{isLoading ? "Loading..." : "Submit"}</button>
     </>
   );
 }
