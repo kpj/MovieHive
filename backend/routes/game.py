@@ -8,9 +8,13 @@ router = APIRouter()
 
 
 @router.get("/state")
-def get_state(request: Request) -> models.CurrentState:
-    return models.CurrentState(
-        state=request.app.state.game_manager._state.__class__.__name__
+def get_state(
+    *,
+    request: Request,
+    current_user: login_system.AuthenticatedUser,
+) -> models.CurrentState:
+    return request.app.state.game_manager.get_current_state_message(
+        current_user.username
     )
 
 
@@ -20,11 +24,16 @@ def get_round(*, request: Request) -> models.RoundPublicWithSubmissions:
 
 
 @router.post("/round")
-def create_round(*, request: Request, round: models.RoundCreate) -> models.CurrentState:
+def create_round(
+    *,
+    request: Request,
+    current_user: login_system.AuthenticatedUser,
+    round: models.RoundCreate,
+) -> models.CurrentState:
     request.app.state.game_manager.create_new_round(round)
 
-    return models.CurrentState(
-        state=request.app.state.game_manager._state.__class__.__name__
+    return request.app.state.game_manager.get_current_state_message(
+        current_user.username
     )
 
 
@@ -38,7 +47,7 @@ def add_submission(
     *,
     request: Request,
     current_user: login_system.AuthenticatedUser,
-    submission: models.SubmissionCreate
+    submission: models.SubmissionCreate,
 ) -> models.CurrentState:
     if not request.app.state.game_manager.is_in_state(game_manager.SubmissionState):
         raise HTTPException(status_code=500, detail="Not in submission state")
@@ -46,8 +55,8 @@ def add_submission(
     request.app.state.game_manager.add_submission(current_user.username, submission)
 
     request.app.state.game_manager.update()
-    return models.CurrentState(
-        state=request.app.state.game_manager._state.__class__.__name__
+    return request.app.state.game_manager.get_current_state_message(
+        current_user.username
     )
 
 
@@ -56,7 +65,7 @@ def add_vote(
     *,
     request: Request,
     current_user: login_system.AuthenticatedUser,
-    vote: models.VoteCreate
+    vote: models.VoteCreate,
 ) -> models.CurrentState:
     if not request.app.state.game_manager.is_in_state(game_manager.VotingState):
         raise HTTPException(status_code=500, detail="Not in voting state")
@@ -64,8 +73,8 @@ def add_vote(
     request.app.state.game_manager.add_vote(current_user.username, vote)
 
     request.app.state.game_manager.update()
-    return models.CurrentState(
-        state=request.app.state.game_manager._state.__class__.__name__
+    return request.app.state.game_manager.get_current_state_message(
+        current_user.username
     )
 
 
@@ -74,7 +83,7 @@ def add_user(
     *,
     request: Request,
     current_user: login_system.AuthenticatedUser,
-    user: models.UserCreate
+    user: models.UserCreate,
 ):
     assert user.name == current_user.username, (user, current_user)
     request.app.state.game_manager.add_player(user)
@@ -85,6 +94,6 @@ def add_comment(
     *,
     request: Request,
     current_user: login_system.AuthenticatedUser,
-    comment: models.CommentCreate
+    comment: models.CommentCreate,
 ):
     request.app.state.game_manager.add_comment(current_user.username, comment)

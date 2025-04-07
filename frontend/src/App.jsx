@@ -9,7 +9,7 @@ import OverView from "./OverView.jsx";
 
 
 export default function App() {
-  const [gameState, setGameState] = useState(null);
+  const [gameState, setGameState] = useState({});
   const [userInfo, setUserInfo] = useState(null);
 
   const setupGame = async (userInfo) => {
@@ -28,11 +28,11 @@ export default function App() {
       const response = await fetch("http://localhost:8000/state/", {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${userInfo.token}`,
+          "Authorization": `Bearer ${userInfo.token.access_token}`,
         },
       })
       const result = await response.json();
-      setGameState(result.state)
+      setGameState(result)
     } catch (error) {
       console.error("Error game state:", error);
     }
@@ -53,11 +53,11 @@ export default function App() {
     </h1>
   );
 
-  if (gameState == "SubmissionState") {
-    container = <Container><SubmissionView setGameState={setGameState} /></Container>;
-  } else if (gameState == "VotingState") {
-    container = <Container><VotingView setGameState={setGameState} /></Container>;
-  } else if (gameState == "OverviewState") {
+  if (gameState.state === "SubmissionState") {
+    container = <Container><SubmissionView gameState={gameState} setGameState={setGameState} /></Container>;
+  } else if (gameState.state === "VotingState") {
+    container = <Container><VotingView gameState={gameState} setGameState={setGameState} /></Container>;
+  } else if (gameState.state === "OverviewState") {
     container = <OverView setGameState={setGameState} />;
   }
   return <UserContext.Provider value={userInfo} >{container}</UserContext.Provider >

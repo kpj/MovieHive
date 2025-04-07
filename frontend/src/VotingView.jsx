@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useRef } from "react";
 import { UserContext } from './UserContext.js';
 
 import MovieCard from "./MovieCard.jsx";
+import WaitingView from "./WaitingView.jsx";
 
 import commonStyles from "./CommonStyles.module.css";
 
@@ -32,7 +33,7 @@ function SingleSubmission({ data, setGameState, inputRefs }) {
           })
         })
         const result = await response.json();
-        setGameState(result.state);
+        setGameState(result);
       } catch (error) {
         console.error("Error:", error);
       }
@@ -57,7 +58,7 @@ function SingleSubmission({ data, setGameState, inputRefs }) {
   );
 }
 
-export default function VotingView({ setGameState }) {
+export default function VotingView({ gameState, setGameState }) {
   const userInfo = useContext(UserContext);
   const [submissions, setSubmissions] = useState([]);
   const inputRefs = useRef({ comments: {} });
@@ -79,6 +80,10 @@ export default function VotingView({ setGameState }) {
     }
     loadState()
   }, []);
+
+  if (gameState.player_state === "closed") {
+    return <WaitingView message="You have voted for a movie, now wait for the others to do the same." />
+  }
 
   return (<>
     <p className={commonStyles.description}>Write comments wherever you feel like it and then vote for the movie which you think fits the prompt best (you cannot vote for your own movie).</p>

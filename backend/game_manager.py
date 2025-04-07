@@ -224,6 +224,13 @@ class GameManager:
 
         return set(self._players) <= users
 
+    def user_has_submitted(self, username: str) -> bool:
+        with self.sql_session() as session:
+            return username in set(
+                sub.submitting_user.name
+                for sub in session.exec(select(models.Submission))
+            )
+
     def all_players_voted(self) -> bool:
         with self.sql_session() as session:
             voted_submission_ids = [
@@ -231,6 +238,31 @@ class GameManager:
             ]
 
         return None not in voted_submission_ids
+
+    def user_has_voted(self, username: str) -> bool:
+        with self.sql_session() as session:
+            return username in [
+                user.name
+                for user in session.exec(
+                    select(models.User).where(
+                        models.User.voted_submission_id.is_not(None)
+                    )
+                )
+            ]
+
+    def get_current_state_message(self, username) -> models.CurrentState:
+        state_message = models.CurrentState(state=self._state.__class__.__name__)
+
+        if self.is_in_state(SubmissionState):
+            state_message.player_state = (
+                "closed" if self.user_has_submitted(username) else "open"
+            )
+        elif self.is_in_state(VotingState):
+            state_message.player_state = (
+                "closed" if self.user_has_voted(username) else "open"
+            )
+
+        return state_message
 
     def transition_to_state(self, new_state: GameState):
         print(f"Transitioning to {new_state}")

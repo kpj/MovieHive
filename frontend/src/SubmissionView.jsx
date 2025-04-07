@@ -1,10 +1,12 @@
 import { useRef, useState, useEffect, useContext } from 'react';
 import { UserContext } from './UserContext.js';
 
+import WaitingView from "./WaitingView.jsx";
+
 import commonStyles from "./CommonStyles.module.css";
 
 
-export default function SubmissionView({ setGameState }) {
+export default function SubmissionView({ gameState, setGameState }) {
   const [prompt, setPrompt] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const inputRefs = useRef({});
@@ -45,13 +47,17 @@ export default function SubmissionView({ setGameState }) {
         body: JSON.stringify(data)
       });
       const result = await response.json();
-      setGameState(result.state);
+      setGameState(result);
     } catch (error) {
       console.error("Error sending submission:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (gameState.player_state === "closed") {
+    return <WaitingView message="You have submitted your movie, now wait for the others to do the same." />
+  }
 
   return (
     <>

@@ -31,7 +31,7 @@ function PromptSubmission({ setGameState }) {
         body: JSON.stringify(data)
       });
       const result = await response.json();
-      setGameState(result.state);
+      setGameState(result);
     } catch (error) {
       console.error("Error sending submission:", error);
     }

@@ -131,3 +131,4 @@ class VoteCreate(SQLModel):
 
 class CurrentState(SQLModel):
     state: str
+    player_state: str | None = None
