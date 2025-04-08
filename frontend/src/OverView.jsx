@@ -61,6 +61,9 @@ export default function OverView({ setGameState }) {
       try {
         const response = await fetch("http://localhost:8000/rounds/", {
           method: "GET",
+          headers: {
+            "Authorization": `Bearer ${userInfo.token.access_token}`,
+          },
         })
         const result = await response.json();
         setResults(result);

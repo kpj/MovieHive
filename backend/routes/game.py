@@ -38,7 +38,11 @@ def create_round(
 
 
 @router.get("/rounds")
-def get_rounds(*, request: Request) -> list[models.RoundPublicWithSubmissions]:
+def get_rounds(
+    *,
+    request: Request,
+    current_user: login_system.AuthenticatedUser,
+) -> list[models.RoundPublicWithSubmissions]:
     return request.app.state.game_manager.get_all_rounds()
 
 
