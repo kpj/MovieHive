@@ -8,6 +8,7 @@ from sqlmodel import Session, SQLModel, create_engine, select
 from imdbmovies import IMDB
 
 from . import models
+from .config import Settings
 
 
 class GameState(abc.ABC):
@@ -63,7 +64,8 @@ class SubmissionState(GameState):
 
 
 class GameManager:
-    def __init__(self, initial_state: GameState | None = None):
+    def __init__(self, settings: Settings, initial_state: GameState | None = None):
+        self._settings = settings
         self._state = (initial_state or OverviewState)(self)
 
         self.engine = None
@@ -274,7 +276,7 @@ class GameManager:
         self._state.enter()
 
     def setup_database(self):
-        sqlite_file_name = "database.db"
+        sqlite_file_name = self._settings.datatbase_directory / "database.db"
         sqlite_url = f"sqlite:///{sqlite_file_name}"
 
         connect_args = {"check_same_thread": False}

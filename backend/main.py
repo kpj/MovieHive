@@ -3,13 +3,14 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from backend import game_manager
-from backend.routes import game, login_system
+from . import game_manager
+from .routes import game, login_system
+from .config import get_settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    manager = game_manager.GameManager()
+    manager = game_manager.GameManager(get_settings())
     manager.setup_database()
 
     app.state.game_manager = manager
