@@ -5,7 +5,7 @@ from typing import Generator
 from fastapi import HTTPException, status
 from sqlmodel import Session, SQLModel, create_engine, select
 
-from imdbmovies import IMDB
+import imdbmovies
 
 from . import models
 from .config import Settings
@@ -289,7 +289,7 @@ class GameManager:
         yield Session(self.engine)
 
     def load_movie_object(self, name: str) -> models.Movie:
-        imdb = IMDB()
+        imdb = imdbmovies.IMDB()
 
         movie_data = imdb.get_by_name(name)
 

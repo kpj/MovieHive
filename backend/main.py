@@ -10,7 +10,10 @@ from .config import get_settings
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    manager = game_manager.GameManager(get_settings())
+    # Make app settings also work with tests.
+    settings = app.dependency_overrides.get(get_settings, get_settings)()
+
+    manager = game_manager.GameManager(settings)
     manager.setup_database()
 
     app.state.game_manager = manager
