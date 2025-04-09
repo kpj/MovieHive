@@ -52,16 +52,16 @@ def add_submission(
     request: Request,
     current_user: login_system.AuthenticatedUser,
     submission: models.SubmissionCreate,
-) -> models.CurrentState:
+) -> models.SubmissionPublic:
     if not request.app.state.game_manager.is_in_state(game_manager.SubmissionState):
         raise HTTPException(status_code=500, detail="Not in submission state")
 
-    request.app.state.game_manager.add_submission(current_user.username, submission)
+    db_submission = request.app.state.game_manager.add_submission(
+        current_user.username, submission
+    )
 
     request.app.state.game_manager.update()
-    return request.app.state.game_manager.get_current_state_message(
-        current_user.username
-    )
+    return db_submission
 
 
 @router.post("/vote/")

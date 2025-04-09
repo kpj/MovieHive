@@ -44,6 +44,13 @@ class MoviePublic(MovieBase):
     id: int
 
 
+class UserSubmissionLink(SQLModel, table=True):
+    user_id: int | None = Field(default=None, foreign_key="user.id", primary_key=True)
+    submission_id: int | None = Field(
+        default=None, foreign_key="submission.id", primary_key=True
+    )
+
+
 class SubmissionBase(SQLModel):
     round_id: int | None = Field(default=None, foreign_key="round.id")
     movie_id: int | None = Field(default=None, foreign_key="movie.id")
@@ -54,12 +61,12 @@ class Submission(SubmissionBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     round: Round = Relationship(back_populates="submissions")
     submitting_user: "User" = Relationship(
-        back_populates="submitted_submission",
+        back_populates="submitted_submissions",
         sa_relationship_kwargs={"foreign_keys": "Submission.submitting_user_id"},
     )
     voting_users: list["User"] = Relationship(
-        back_populates="voted_submission",
-        sa_relationship_kwargs={"foreign_keys": "User.voted_submission_id"},
+        back_populates="voted_submissions",
+        link_model=UserSubmissionLink,
     )
     movie: Movie = Relationship(back_populates="submissions")
     comments: list["Comment"] = Relationship(back_populates="submission")
@@ -100,18 +107,17 @@ class CommentCreate(CommentBase):
 
 class UserBase(SQLModel):
     name: str
-    voted_submission_id: int | None = Field(default=None, foreign_key="submission.id")
 
 
 class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    submitted_submission: Submission | None = Relationship(
+    submitted_submissions: list[Submission] = Relationship(
         back_populates="submitting_user",
         sa_relationship_kwargs={"foreign_keys": "Submission.submitting_user_id"},
     )
-    voted_submission: Submission | None = Relationship(
+    voted_submissions: list[Submission] = Relationship(
         back_populates="voting_users",
-        sa_relationship_kwargs={"foreign_keys": "User.voted_submission_id"},
+        link_model=UserSubmissionLink,
     )
     comments: list["Comment"] = Relationship(back_populates="author")
 

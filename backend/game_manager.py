@@ -104,13 +104,17 @@ class GameManager:
                 select(models.Round).order_by(models.Round.id.desc())
             ).all()
 
-    def get_current_round(self) -> models.Round:
+    def get_current_round(self) -> models.RoundPublicWithSubmissions:
         with self.sql_session() as session:
-            return session.exec(
-                select(models.Round).order_by(models.Round.id.desc()).limit(1)
-            ).first()
+            return models.RoundPublicWithSubmissions.model_validate(
+                session.exec(
+                    select(models.Round).order_by(models.Round.id.desc()).limit(1)
+                ).first()
+            )
 
-    def add_submission(self, username: str, submission: models.SubmissionCreate):
+    def add_submission(
+        self, username: str, submission: models.SubmissionCreate
+    ) -> models.SubmissionPublic:
         with self.sql_session() as session:
             # Get current round.
             round = self.get_current_round()
@@ -164,6 +168,9 @@ class GameManager:
                 )
                 session.add(comment)
                 session.commit()
+                session.refresh(comment)
+
+            return models.SubmissionPublic.model_validate(new_submission)
 
     def add_vote(self, username: str, vote: models.VoteCreate):
         with self.sql_session() as session:
@@ -179,7 +186,9 @@ class GameManager:
                 )
 
             # Assign vote.
-            user.voted_submission_id = vote.submission_id
+            user.voted_submissions.append(
+                session.get(models.Submission, vote.submission_id)
+            )
 
             # Assign comments.
             for submission_id, comment_text in vote.all_comments.items():
@@ -219,38 +228,51 @@ class GameManager:
 
     def all_players_submitted(self) -> bool:
         with self.sql_session() as session:
+            round = self.get_current_round()
+
             users = set(
                 sub.submitting_user.name
-                for sub in session.exec(select(models.Submission))
+                for sub in session.exec(
+                    select(models.Submission).where(
+                        models.Submission.round_id == round.id
+                    )
+                )
             )
 
         return set(self._players) <= users
 
     def user_has_submitted(self, username: str) -> bool:
         with self.sql_session() as session:
+            round = self.get_current_round()
+
             return username in set(
                 sub.submitting_user.name
-                for sub in session.exec(select(models.Submission))
+                for sub in session.exec(
+                    select(models.Submission).where(
+                        models.Submission.round_id == round.id
+                    )
+                )
             )
 
     def all_players_voted(self) -> bool:
-        with self.sql_session() as session:
-            voted_submission_ids = [
-                user.voted_submission_id for user in session.exec(select(models.User))
-            ]
+        round = self.get_current_round()
 
-        return None not in voted_submission_ids
+        voting_users = set(
+            user.name
+            for submission in round.submissions
+            for user in submission.voting_users
+        )
+        return set(self._players) <= voting_users
 
     def user_has_voted(self, username: str) -> bool:
-        with self.sql_session() as session:
-            return username in [
-                user.name
-                for user in session.exec(
-                    select(models.User).where(
-                        models.User.voted_submission_id.is_not(None)
-                    )
-                )
-            ]
+        round = self.get_current_round()
+
+        voting_users = set(
+            user.name
+            for submission in round.submissions
+            for user in submission.voting_users
+        )
+        return username in voting_users
 
     def get_current_state_message(self, username) -> models.CurrentState:
         state_message = models.CurrentState(state=self._state.__class__.__name__)
@@ -280,7 +302,11 @@ class GameManager:
         sqlite_url = f"sqlite:///{sqlite_file_name}"
 
         connect_args = {"check_same_thread": False}
-        self.engine = create_engine(sqlite_url, connect_args=connect_args)
+        self.engine = create_engine(
+            sqlite_url,
+            connect_args=connect_args,
+            pool_size=10,
+        )
 
         SQLModel.metadata.create_all(self.engine)
 

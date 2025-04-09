@@ -46,8 +46,15 @@ export default function SubmissionView({ gameState, setGameState }) {
         },
         body: JSON.stringify(data)
       });
-      const result = await response.json();
-      setGameState(result);
+
+      const state_response = await fetch("http://localhost:8000/state/", {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${userInfo.token.access_token}`,
+        },
+      })
+      const state_result = await state_response.json();
+      setGameState(state_result)
     } catch (error) {
       console.error("Error sending submission:", error);
     } finally {
