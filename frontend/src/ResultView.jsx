@@ -8,6 +8,14 @@ import containerStyles from "./Container.module.css";
 import styles from "./ResultView.module.css";
 
 
+function Comment({ author, text }) {
+  return <div className={styles.comment}>
+    <b>{author.name}</b>
+    <span>{text}</span>
+  </div>
+}
+
+
 function SingleResult({ data, setGameState }) {
   const userInfo = useContext(UserContext);
 
@@ -28,7 +36,7 @@ function SingleResult({ data, setGameState }) {
 
       <div className={styles.entry}>
         <span className={styles.entryTitle}>Comments:</span>
-        <span className={styles.commentsEntry}>{data.comments.map(data => `${data.author.name}: ${data.text}`).join(", ")}</span>
+        <div className={styles.commentList}>{data.comments.map((data, i) => <Comment key={i} author={data.author} text={data.text} />)}</div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
   margin-top: 10px;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .entryTitle {
@@ -21,7 +22,17 @@
   color: #555;
 }
 
-.commentsEntry {
+.commentList {
   font-size: 14px;
   color: #555;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  width: 70%;
+}
+
+.comment {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
